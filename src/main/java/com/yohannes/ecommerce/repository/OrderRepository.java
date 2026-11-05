@@ -1,0 +1,19 @@
+package com.yohannes.ecommerce.repository;
+
+import com.yohannes.ecommerce.domain.Order;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface OrderRepository {
+
+    void save(Order order);
+
+    Optional<Order> findById(String id);
+
+    List<Order> findAll();
+
+    List<Order> findByCustomerId(String customerId);
+
+    boolean existsById(String id);
+}
