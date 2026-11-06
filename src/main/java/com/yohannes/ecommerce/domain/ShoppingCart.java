@@ -38,15 +38,19 @@ public class ShoppingCart {
                     "Cannot add an inactive product"
             );
         }
-
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity to add must be positive");
+        }
         CartItem newItem = new CartItem(product,quantity);
 
         for (int i = 0; i < items.size(); i++) {
             CartItem existing = items.get(i);
 
             if (existing.getProduct().getId().equalsIgnoreCase(product.getId())) {
-                int updatedQuantity =
-                        existing.getQuantity() + quantity;
+                int updatedQuantity = Math.addExact(
+                        existing.getQuantity(),
+                        quantity
+                );
 
                 items.set(i, new CartItem(product, updatedQuantity));
                 return;
