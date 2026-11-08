@@ -3,9 +3,12 @@ package com.yohannes.ecommerce.service;
 import com.yohannes.ecommerce.domain.Customer;
 import com.yohannes.ecommerce.domain.Product;
 import com.yohannes.ecommerce.domain.ShoppingCart;
+import com.yohannes.ecommerce.exception.BusinessRuleException;
+import com.yohannes.ecommerce.exception.ResourceNotFoundException;
 import com.yohannes.ecommerce.repository.CartRepository;
 import com.yohannes.ecommerce.repository.CustomerRepository;
 import com.yohannes.ecommerce.repository.ProductRepository;
+import com.yohannes.ecommerce.validation.ValidationUtils;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -38,23 +41,23 @@ public class CartService {
     }
 
     public void addProduct(String customerId, String productId, int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
+
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+        ValidationUtils.requirePositive(quantity, "Quantity");
 
         Customer customer = validateCustomer(customerId);
 
         if (!customer.isActive()) {
-            throw new IllegalArgumentException("Customer account is inactive");
+            throw new BusinessRuleException("Customer account is inactive");
         }
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Product not found: " + productId
                 ));
 
         if (!product.isActive()) {
-            throw new IllegalArgumentException("Product is inactive");
+            throw new BusinessRuleException("Product is inactive");
         }
 
         ShoppingCart cart = getCart(customerId);
@@ -64,12 +67,15 @@ public class CartService {
     }
 
     public void removeProduct(String customerId, String productId) {
+
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+
         ShoppingCart cart = getCart(customerId);
 
         boolean removed = cart.removeItem(productId);
 
         if (!removed) {
-            throw new IllegalArgumentException(
+            throw new BusinessRuleException(
                     "Product is not in the cart: " + productId
             );
         }
@@ -82,9 +88,8 @@ public class CartService {
             String productId,
             int newQuantity
     ) {
-        if (newQuantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
+        ValidationUtils.requirePositive(newQuantity, "Quantity");
+        ValidationUtils.requireNotBlank(productId, "Product ID");
 
         ShoppingCart cart = getCart(customerId);
 
@@ -106,10 +111,11 @@ public class CartService {
 
 
     private Customer validateCustomer(String customerId) {
-        Objects.requireNonNull(customerId, "Customer ID cannot be null");
+
+        ValidationUtils.requireNotBlank(customerId, "Customer ID");
 
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Customer not found: " + customerId
                 ));
     }

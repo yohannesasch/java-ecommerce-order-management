@@ -1,6 +1,8 @@
 package com.yohannes.ecommerce.service;
 
 import com.yohannes.ecommerce.domain.*;
+import com.yohannes.ecommerce.exception.BusinessRuleException;
+import com.yohannes.ecommerce.exception.InsufficientStockException;
 import com.yohannes.ecommerce.repository.CartRepository;
 import com.yohannes.ecommerce.repository.CustomerRepository;
 import com.yohannes.ecommerce.repository.OrderRepository;
@@ -107,7 +109,7 @@ public class OrderServiceTest {
         cartService.addProduct(customer.getId(), product.getId(), 11);
 
         assertThrows(
-                IllegalStateException.class,
+                InsufficientStockException.class,
                 () -> orderService.placeOrder(customer.getId())
         );
 
@@ -135,7 +137,7 @@ public class OrderServiceTest {
         customerRepository.save(customer.withActive(false));
 
         assertThrows(
-                IllegalStateException.class,
+                BusinessRuleException.class,
                 () -> orderService.placeOrder(customer.getId())
         );
 
@@ -189,7 +191,7 @@ public class OrderServiceTest {
         orderService.cancelOrder(order.getId());
 
         assertThrows(
-                IllegalStateException.class,
+                BusinessRuleException.class,
                 () -> orderService.cancelOrder(order.getId())
         );
 
@@ -210,7 +212,7 @@ public class OrderServiceTest {
         orderService.shipOrder(order.getId());
 
         assertThrows(
-                IllegalStateException.class,
+                BusinessRuleException.class,
                 () -> orderService.cancelOrder(order.getId())
         );
 
@@ -243,7 +245,7 @@ public class OrderServiceTest {
         assertEquals(OrderStatus.DELIVERED, order.getStatus());
 
         assertThrows(
-                IllegalStateException.class,
+                BusinessRuleException.class,
                 () -> orderService.cancelOrder(order.getId())
         );
 

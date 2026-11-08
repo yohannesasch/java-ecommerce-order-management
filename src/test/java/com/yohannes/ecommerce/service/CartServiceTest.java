@@ -4,9 +4,13 @@ import com.yohannes.ecommerce.domain.Customer;
 import com.yohannes.ecommerce.domain.Product;
 import com.yohannes.ecommerce.domain.ProductCategory;
 import com.yohannes.ecommerce.domain.ShoppingCart;
+import com.yohannes.ecommerce.exception.BusinessRuleException;
+import com.yohannes.ecommerce.exception.ResourceNotFoundException;
+import com.yohannes.ecommerce.exception.ValidationException;
 import com.yohannes.ecommerce.repository.impl.InMemoryCartRepository;
 import com.yohannes.ecommerce.repository.impl.InMemoryCustomerRepository;
 import com.yohannes.ecommerce.repository.impl.InMemoryProductRepository;
+import com.yohannes.ecommerce.validation.ValidationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -69,7 +73,7 @@ public class CartServiceTest {
     @Test
     void shouldRejectUnknownCustomer() {
         assertThrows(
-                IllegalArgumentException.class,
+                ResourceNotFoundException.class,
                 () -> cartService.getCart("UNKNOWN")
         );
     }
@@ -77,7 +81,7 @@ public class CartServiceTest {
     @Test
     void shouldRejectUnknownProduct() {
         assertThrows(
-                IllegalArgumentException.class,
+                ResourceNotFoundException.class,
                 () -> cartService.addProduct("C001", "UNKNOWN", 1)
         );
     }
@@ -89,7 +93,7 @@ public class CartServiceTest {
         );
 
         assertThrows(
-                IllegalArgumentException.class,
+                BusinessRuleException.class,
                 () -> cartService.addProduct("C002", "P001", 1)
         );
     }
@@ -109,7 +113,7 @@ public class CartServiceTest {
         );
 
         assertThrows(
-                IllegalArgumentException.class,
+                BusinessRuleException.class,
                 () -> cartService.addProduct("C001", "P002", 1)
         );
     }
@@ -128,7 +132,7 @@ public class CartServiceTest {
     @Test
     void shouldRejectNonPositiveQuantity() {
         assertThrows(
-                IllegalArgumentException.class,
+                ValidationException.class,
                 () -> cartService.addProduct("C001", "P001", 0)
         );
     }
@@ -158,7 +162,7 @@ public class CartServiceTest {
     @Test
     void shouldRejectUpdatingProductNotInCart() {
         assertThrows(
-                IllegalArgumentException.class,
+                BusinessRuleException.class,
                 () -> cartService.updateProductQuantity("C001", "P001", 3)
         );
     }
@@ -189,7 +193,7 @@ public class CartServiceTest {
     @Test
     void shouldRejectRemovingProductNotInCart() {
         assertThrows(
-                IllegalArgumentException.class,
+                BusinessRuleException.class,
                 () -> cartService.removeProduct("C001", "P001")
         );
     }
@@ -199,7 +203,7 @@ public class CartServiceTest {
         cartService.addProduct("C001", "P001", 2);
 
         assertThrows(
-                IllegalArgumentException.class,
+                ValidationException.class,
                 () -> cartService.updateProductQuantity("C001", "P001", 0)
         );
     }

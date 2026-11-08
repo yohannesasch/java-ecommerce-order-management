@@ -1,6 +1,8 @@
 package com.yohannes.ecommerce.service;
 
 import com.yohannes.ecommerce.domain.Customer;
+import com.yohannes.ecommerce.exception.DuplicateResourceException;
+import com.yohannes.ecommerce.exception.ResourceNotFoundException;
 import com.yohannes.ecommerce.repository.impl.InMemoryCustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +46,7 @@ public class CustomerServiceTest {
         customerService.registerCustomer(first);
 
         assertThrows(
-                IllegalArgumentException.class,
+                DuplicateResourceException.class,
                 () -> customerService.registerCustomer(second)
         );
     }
@@ -62,7 +64,7 @@ public class CustomerServiceTest {
         customerService.registerCustomer(first);
 
         assertThrows(
-                IllegalArgumentException.class,
+                DuplicateResourceException.class,
                 () -> customerService.registerCustomer(second)
         );
     }
@@ -128,7 +130,7 @@ public class CustomerServiceTest {
     @Test
     void shouldRejectDeactivatingUnknownCustomer() {
         assertThrows(
-                IllegalArgumentException.class,
+                ResourceNotFoundException.class,
                 () -> customerService.deactivateCustomer("UKNOWN")
         );
     }
@@ -172,7 +174,7 @@ public class CustomerServiceTest {
         );
 
         assertThrows(
-                IllegalArgumentException.class,
+                DuplicateResourceException.class,
                 () -> customerService.updateCustomerEmail(
                         "C002", "yohannes@example.com"
                 )

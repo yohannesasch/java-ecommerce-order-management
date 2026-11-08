@@ -1,5 +1,6 @@
 package com.yohannes.ecommerce.domain;
 
+import com.yohannes.ecommerce.exception.BusinessRuleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -97,7 +98,7 @@ class ShoppingCartTest {
                 false
         );
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(BusinessRuleException.class, () ->
                 cart.addItem(inactiveProduct, 1)
         );
     }

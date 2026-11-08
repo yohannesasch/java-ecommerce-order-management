@@ -1,5 +1,8 @@
 package com.yohannes.ecommerce.domain;
 
+import com.yohannes.ecommerce.exception.BusinessRuleException;
+import com.yohannes.ecommerce.validation.ValidationUtils;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +14,10 @@ public class ShoppingCart {
     private final List<CartItem> items = new ArrayList<>();
 
     public ShoppingCart(String  customerId) {
-        this.customerId = Objects.requireNonNull(
-                customerId, "Customer ID cannot be null"
-        );
 
-        if (customerId.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Customer ID cannot be blank"
-            );
-        }
+        ValidationUtils.requireNotBlank(customerId, "Customer ID");
+
+        this.customerId = customerId;
     }
 
     public String getCustomerId() {
@@ -31,15 +29,13 @@ public class ShoppingCart {
     }
 
     public void addItem(Product product, int quantity) {
-        Objects.requireNonNull(product, "Products cannot be null");
+        ValidationUtils.requireNotNull(product, "Product");
+        ValidationUtils.requirePositive(quantity, "Quantity");
 
         if (!product.isActive()) {
-            throw new IllegalArgumentException(
+            throw new BusinessRuleException(
                     "Cannot add an inactive product"
             );
-        }
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity to add must be positive");
         }
         CartItem newItem = new CartItem(product,quantity);
 
@@ -60,7 +56,8 @@ public class ShoppingCart {
     }
 
     public boolean removeItem(String prductId) {
-        Objects.requireNonNull(prductId, "Product ID cannot be null");
+
+        ValidationUtils.requireNotBlank(prductId, "Product ID");
 
         return items.removeIf(
                 item -> item.getProduct().getId().equals(prductId)
@@ -83,13 +80,8 @@ public class ShoppingCart {
     }
 
     public void updateQuantity(String productId, int newQuantity) {
-        Objects.requireNonNull(productId, "Prduct ID cannot be null");
-
-        if (newQuantity <= 0) {
-            throw new IllegalArgumentException(
-                    "Quantity must be greater than zero"
-            );
-        }
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+        ValidationUtils.requirePositive(newQuantity, "Quantity");
 
         for (int i = 0; i < items.size(); i++) {
             CartItem item = items.get(i);
@@ -100,7 +92,7 @@ public class ShoppingCart {
             }
         }
 
-        throw new IllegalArgumentException(
+        throw new BusinessRuleException(
                 "Product not found in shopping cart: " + productId
         );
     }

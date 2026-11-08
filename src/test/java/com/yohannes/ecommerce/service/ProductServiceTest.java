@@ -3,6 +3,8 @@ package com.yohannes.ecommerce.service;
 
 import com.yohannes.ecommerce.domain.Product;
 import com.yohannes.ecommerce.domain.ProductCategory;
+import com.yohannes.ecommerce.exception.DuplicateResourceException;
+import com.yohannes.ecommerce.exception.ResourceNotFoundException;
 import com.yohannes.ecommerce.repository.impl.InMemoryProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +51,7 @@ public class ProductServiceTest {
         productService.createProduct(product);
 
         assertThrows(
-                IllegalArgumentException.class,
+                DuplicateResourceException.class,
                 () -> productService.createProduct(product)
         );
     }
@@ -102,7 +104,7 @@ public class ProductServiceTest {
     @Test
     void shouldRejectUpdatingNonexistentProduct() {
         assertThrows(
-                IllegalArgumentException.class,
+                ResourceNotFoundException.class,
                 () -> productService.updateProductPrice(
                         "P999",
                         new BigDecimal("1000.00")

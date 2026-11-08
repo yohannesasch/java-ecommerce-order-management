@@ -1,7 +1,10 @@
 package com.yohannes.ecommerce.service;
 
 import com.yohannes.ecommerce.domain.Product;
+import com.yohannes.ecommerce.exception.DuplicateResourceException;
+import com.yohannes.ecommerce.exception.ResourceNotFoundException;
 import com.yohannes.ecommerce.repository.ProductRepository;
+import com.yohannes.ecommerce.validation.ValidationUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +23,8 @@ public class ProductService {
     }
 
     public Optional<Product> findProductById(String productId) {
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+
         return productRepository.findById(productId);
     }
 
@@ -28,10 +33,10 @@ public class ProductService {
     }
 
     public void createProduct(Product product) {
-        Objects.requireNonNull(product, "Product cannot be null");
+        ValidationUtils.requireNotNull(product, "Product");
 
         if (productRepository.existsById(product.getId())){
-            throw new IllegalArgumentException(
+            throw new DuplicateResourceException(
                     "Product already exists: " + product.getId()
             );
         }
@@ -40,8 +45,12 @@ public class ProductService {
     }
 
     public void updateProductPrice(String productId, BigDecimal newPrice) {
+
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+        ValidationUtils.requirePositive(newPrice, "Product price");
+
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Product not found: " + productId
                 ));
 
@@ -51,6 +60,10 @@ public class ProductService {
     }
 
     public void updateProductStock(String productId, int newStockQuantity) {
+
+        ValidationUtils.requireNotBlank(productId, "Product ID");
+        ValidationUtils.requireNonNegative(newStockQuantity, "Stock quantity");
+
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Product not found: " + productId
@@ -63,6 +76,9 @@ public class ProductService {
     }
 
     public void updateProductStatus(String productId, boolean active) {
+
+        ValidationUtils.requireNotBlank(productId, "product ID");
+
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Product not found: " + productId
