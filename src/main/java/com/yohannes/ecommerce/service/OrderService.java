@@ -55,7 +55,6 @@ public class OrderService {
             throw new IllegalStateException("Cannot place and order with an empty cart");
         }
 
-        // validate products and prepare order items
         List<OrderItem> orderItems = new ArrayList<>();
 
         Map<String, Product> productsToUpdate = new HashMap<>();
